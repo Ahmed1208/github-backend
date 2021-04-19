@@ -43,7 +43,7 @@ def get_docs(index,field:str=None):
         results = es.search(index=index, _source_includes=field)['hits']['hits']
     else:
         results = es.search(index=index)['hits']['hits']
-    return results #use pp.pprint
+    modify_output(results,field) #use pp.pprint
 
 def delete_all_docs(index):
     es.delete_by_query(index=index, body={"query": {"match_all": {}}})
@@ -89,7 +89,18 @@ def search_by_tags(tag:str):
         }
     }
     result = es.search(index="images",body= query_body,size=999)
-    return result["hits"]["hits"]
+    modify_output(result["hits"]["hits"])
+
+def modify_output(results,field:str):
+    global images
+    global pca_features
+    global pca
+    images.clear()
+    pca_features.clear()
+    for i in results:
+        images.append(i["_id"])
+        pca_features.append(i["_source"][field])
+
 
 
 def get_history_data(pickle_path):
@@ -111,11 +122,12 @@ def get_history_data(pickle_path):
 
 
 #get_files("/home/bondok/Downloads/kaggle")
-#get_docs("images")
+res = get_docs("images")
+pp.pprint(res)
 #delete_all_docs("images")
 #get_indecies()
 #delete_index("test-index")
 
 #input_docs(index="images",pickle_path=pickle_file_path)
-res = search_by_tags("yin_yang")
-pp.pprint(len(res))
+#res = search_by_tags("yin_yang")
+#pp.pprint(len(res))
