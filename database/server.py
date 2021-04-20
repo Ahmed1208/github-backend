@@ -26,14 +26,18 @@ class Imj:
 
 
 def create_doc(index, doc: dict):
+    # used to create an index and manually set the body as dict to be a doc
+    # not used
     es.index(index=index, body=doc)
 
 
 def delete_index(index):
+    # used to delete an index
     es.indices.delete(index=index, ignore=[400, 404])
 
 
 def get_indices():
+    # used to retrieve all indices in elasticsearch cluster
     indices = es.indices.get_alias().keys()
     index_0 = list(indices)
     index_1 = []
@@ -44,7 +48,8 @@ def get_indices():
 
 
 def get_docs(index, field: str = None):
-    # field values (features,tags, not set) base is not set yet
+    # used to retrieve docs, if field is set will be retrieve and saved in images and pca_features
+    # field values (features,tags, not set) base is not supported yet
     # _source_includes="name"
     if field:
         results = es.search(index=index, _source_includes=field)['hits']['hits']
@@ -57,16 +62,19 @@ def get_docs(index, field: str = None):
 
 
 def delete_all_docs(index):
+    # delete all docs in a certain index
     es.delete_by_query(index=index, body={"query": {"match_all": {}}})
 
 
 def get_files(folder_path):
+    # not used
     onlyfiles = [f for f in listdir(folder_path) if isfile(join(folder_path, f))]
     print(onlyfiles)
 
 
 def input_docs(index: str, base: str = None, path: str = None, tags: list = None, pickle_path: str = None,
                features: list = None, *args, **kwargs):
+    # index: database name, base : not used yet, path and tags and features : used if input just one image, pickle_path: import data from pickle file
     global images
     global pca_features
     global pca
@@ -79,6 +87,7 @@ def input_docs(index: str, base: str = None, path: str = None, tags: list = None
 
 
 def image_to_base(image: Imj):
+    # not used
     with open(image.path, "rb") as img_file:
         b64_string = base64.b64encode(img_file.read())
         image.base = str(b64_string)
@@ -97,6 +106,7 @@ def search_by_feature():
 
 
 def search_by_tags(tag: str):
+    # search by a certain tag and recieve results in global lists images and pca
     # TODO english_analyzer
     query_body = {
         "query": {
@@ -112,6 +122,7 @@ def search_by_tags(tag: str):
 
 
 def modify_output(results, field: str = "features", *args):
+    # dont call this func
     global images
     global pca_features
     global pca
@@ -150,3 +161,6 @@ def get_history_data(pickle_path):
 # input_docs(index="images",pickle_path=pickle_file_path)
 # res = search_by_tags("yin_yang")
 # pp.pprint(len(res))
+
+
+
