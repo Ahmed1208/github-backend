@@ -10,6 +10,43 @@ from elasticsearch_dsl import *
 
 es = Elasticsearch()
 
+analyzer = {
+  "settings": {
+    "analysis": {
+      "filter": {
+        "english_stop": {
+          "type":       "stop",
+          "stopwords":  "_english_"
+        },
+        "english_keywords": {
+          "type":       "keyword_marker",
+          "keywords":   ["example"]
+        },
+        "english_stemmer": {
+          "type":       "stemmer",
+          "language":   "english"
+        },
+        "english_possessive_stemmer": {
+          "type":       "stemmer",
+          "language":   "possessive_english"
+        }
+      },
+      "analyzer": {
+        "rebuilt_english": {
+          "tokenizer":  "standard",
+          "filter": [
+            "english_possessive_stemmer",
+            "lowercase",
+            "english_stop",
+            "english_keywords",
+            "english_stemmer"
+          ]
+        }
+      }
+    }
+  }
+}
+
 # images_foler_path = 'C:/Users/ahmed/Desktop/ahmed folders/progamming/final project/github backend/101_ObjectCategories/'
 pickle_file_path = '/home/bondok/github-backend/features_caltech101.p'
 images = list()  # list where images path are stored ex: airplanes/image_0007.jpg
@@ -52,12 +89,12 @@ def get_docs(index, field: str = None):
     # field values (features,tags, not set) base is not supported yet
     # _source_includes="name"
     if field:
-        results = es.search(index=index, _source_includes=field)['hits']['hits']
+        results = es.search(index=index, _source_includes=field, size=9999)['hits']['hits']
         modify_output(results)
     else:
         results = es.search(index=index)['hits']['hits']
         modify_output(results, field)  # use pp.pprint
-    # pp.pprint(results)
+    pp.pprint(results)
 
 
 
@@ -106,19 +143,17 @@ def search_by_feature():
 
 
 def search_by_tags(tag: str):
-    # search by a certain tag and recieve results in global lists images and pca
+    # search by a certain tag and receive results in global lists images and pca
     # TODO english_analyzer
     query_body = {
         "query": {
-
             "fuzzy": {
-                "tags": {"value": tag, "fuzziness": "auto"}
+                "tags": {"value": tag, "fuzziness": 2}
             }
         }
     }
-    result = es.search(index="images", body=query_body, size=999)
-    # pp.pprint(result)
-    modify_output(result["hits"]["hits"], "feature")
+    result = es.search(index="images", body=query_body, size=9999)
+    modify_output(result["hits"]["hits"], "features")
 
 
 def modify_output(results, field: str = "features", *args):
@@ -131,7 +166,7 @@ def modify_output(results, field: str = "features", *args):
     for i in results:
         images.append(i["_id"])
         pca_features.append(i["_source"][field])
-    #pp.pprint(images)
+    #pp.pprint(len(images))
     #pp.pprint(pca_features)
 
 
@@ -154,13 +189,13 @@ def get_history_data(pickle_path):
 
 
 # get_files("/home/bondok/Downloads/kaggle")
-# get_docs("images", "features")
+# get_docs("images", "tags")
 # delete_all_docs("images")
 # get_indices()
 # delete_index("test-index")
 # input_docs(index="images",pickle_path=pickle_file_path)
-# res = search_by_tags("yin_yang")
-# pp.pprint(len(res))
+search_by_tags("airplanes")
+#pp.pprint(len(res))
 
 
 
