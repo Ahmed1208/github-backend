@@ -142,7 +142,7 @@ def search_by_feature():
     pass
 
 
-def search_by_tags(tag: str):
+def search_by_tags(index:str, tag: str):
     # search by a certain tag and receive results in global lists images and pca
     # TODO english_analyzer
     query_body = {
@@ -152,7 +152,7 @@ def search_by_tags(tag: str):
             }
         }
     }
-    result = es.search(index="images", body=query_body, size=9999)
+    result = es.search(index=index, body=query_body, size=9999)
     modify_output(result["hits"]["hits"], "features")
 
 
@@ -194,7 +194,7 @@ def get_history_data(pickle_path):
 # get_indices()
 # delete_index("test-index")
 # input_docs(index="images",pickle_path=pickle_file_path)
-search_by_tags("airplanes")
+search_by_tags(index="images",tag="airplanes")
 #pp.pprint(len(res))
 
 
