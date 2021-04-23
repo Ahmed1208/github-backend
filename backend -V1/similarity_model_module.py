@@ -41,7 +41,8 @@ def init_model(images_input , pca_features_input,pickle_file_path_input):
             except EOFError:
                 break
     pca = objects[0][2]
-
+    
+    
 def get_history_data(pickle_path):
     global images
     global pca_features
@@ -100,3 +101,18 @@ def get_similar_images(img_path,images_foler_path):
     plt.figure(figsize=(16, 12))
     plt.imshow(results_image)
     plt.title("result images")
+    
+def predict_tag(image_path):
+    img, x = load_image(image_path)
+
+    # forward the image through the network
+    predictions = model.predict(x)
+
+    # print out the 
+    preds = list()
+    probs = list()
+    for _, pred, prob in decode_predictions(predictions)[0]:
+        print("predicted %s with probability %0.3f" % (pred, prob))
+        preds.append(pred)
+        probs.append(prob)
+    return preds[0]
